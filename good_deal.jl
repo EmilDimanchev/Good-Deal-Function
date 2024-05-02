@@ -52,12 +52,10 @@ G = inputs["Number of generation resources"]
 # Model formulation
 # ~~~
 
-# First stage contract
+# Contract
 @variable(gep, w_0)
-# Second stage contract
-# @variable(gep, w_1[s in 1:S, f in 1:F])
-# eta
-@variable(gep, η[1:2] >= 0)
+# Auxiliary good deal variable
+@variable(gep, η[s in 1:S, f in 1:F] >= 0)
 # Generation
 @variable(gep, g[r in 1:G, t in 1:T, s in 1:S, f in 1:F] >= 0)
 # Capacity
@@ -71,11 +69,11 @@ G = inputs["Number of generation resources"]
 # Power balance constraint
 @constraint(gep, power_balance[t in 1:T, s in 1:S, f in 1:F], sum(g[r,t,s,f] for r in 1:G) + y[t,s,f] - demand[t,s] == 0)
 
-# Define system cost
+# Define second-stage (operating) costs
 @expression(gep, op_cost[s in 1:S, f in 1:F], sum(t_weights[t]*g[r,t,s,f]*cost_var[r,f] for r in 1:G, t in 1:T) + sum(t_weights[t]*price_cap*y[t,s,f] for t in 1:T))
 
 # Good Deal constraint
-@constraint(gep, good_deal[s in 1:S, f in 1:F], 1.02*w_0 + η[s] >= op_cost[s,f])
+@constraint(gep, good_deal[s in 1:S, f in 1:F], 1.02*w_0 + η[s,f] >= op_cost[s,f])
 
 # ~~~
 # Objective function
@@ -87,8 +85,7 @@ G = inputs["Number of generation resources"]
 @constraint(gep, [z; p_eta] in SecondOrderCone())
 
 
-@objective(gep, Min, sum(cost_inv[r]*x[r] for r in 1:G) + 1*w_0 + A*z)
-# @objective(gep, Min, sum(cost_inv[r]*x[r] for r in 1:G) + 1*w_0 + A*sum(P[s]*P[f]*sqrt(η[s,f]^2) for s in 1:S, f in 1:F))
+@objective(gep, Min, sum(cost_inv[r]*x[r] for r in 1:G) + w_0 + A*z)
 
 # Solve
 optimize!(gep)
