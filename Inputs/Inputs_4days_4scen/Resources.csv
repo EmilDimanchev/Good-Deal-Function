@@ -1,0 +1,4 @@
+﻿Resources,Index_ID,CES_eligible,Contracted,Storage,Investment cost,Emissions_ton_per_MWh,Capacity_UB,Risk_aversion
+Gas,1,0,0,0,40721,0.4000001,40000,0.5
+Wind,3,1,1,0,42417,0,40000,0.5
+Solar,4,1,1,0,33577,0,40000,0.5
